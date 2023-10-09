@@ -2,20 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-void print_string(char *str,int *length,int typ)
+void print_string(char *str,int *length,int typ,int lin)
 {
 	if(*length>0)
 	{
-		printf("%.*s\t%s\n",*length,str,(typ==1)?"identifier":"constant");
+		printf("%.*s\t%s\t",*length,str,(typ==1)?"identifier":"constant");
+		printf("%d\n",lin);
 		*length=0;
 	}
 }
 
-int check_indentifier(char *str,int *length)
+int check_indentifier(char *str,int *length,int lin)
 {
 	if(strncmp(str, "int", 3)==0)
 	{
-		printf("int\tkeyword\n");
+		printf("int\tkeyword \t%d\n",lin);
 		*length=0;
 		return 1;
 	}
@@ -27,8 +28,9 @@ void main()
 {
 	char cd[100];
 	char str[20];
-	int length=0;
+	int length=0,line=1;
 	int typ;
+	
 	
 	FILE* fptr; 
     fptr = fopen("input.txt", "r");
@@ -44,8 +46,8 @@ void main()
     		cd[begin]=getc(fptr);
     		if (cd[forward]=='=' || cd[forward]=='+')
     		{
-				print_string(str,&length,typ);
-    			printf("%c\toperator\n",cd[forward++]);
+				print_string(str,&length,typ,line);
+    			printf("%c\toperator\t%d\n",cd[forward++],line);
     			begin++;
     			continue;
     		}
@@ -67,15 +69,17 @@ void main()
     		}
     		else if(cd[forward]==';')
     		{	
-				print_string(str,&length,typ);
-    			printf("%c\tpunctuation\n",cd[forward++]);
+				print_string(str,&length,typ,line);
+    			printf("%c\tpunctuation\t%d\n",cd[forward++],line);
     			begin++;
     			continue;
     		}
     		else if(cd[forward]==' ' || cd[forward]=='\n')
     		{
-				if(!check_indentifier(str,&length))
-					print_string(str,&length,typ);
+				if (cd[forward]=='\n')
+					line++;
+				if(!check_indentifier(str,&length,line))
+					print_string(str,&length,typ,line);
     			forward++;
     			begin++;
     			continue;
